@@ -10,7 +10,7 @@ jobs:
       run:
         working-directory: example/ios
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -47,6 +47,13 @@ jobs:
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
+
+      # fix for ruby https://github.com/facebook/react-native/issues/37301#issuecomment-1540484759
+      - name: Fix for ruby
+        uses: |
+          cd ios
+          bundle config --local build.ffi --with-cflags=-Wno-error=implicit-function-declaration
+          bundle install
       - name: Install Pods
         run: bundle exec pod check || bundle exec pod install
       - name: Install xcpretty
