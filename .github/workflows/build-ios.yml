@@ -50,10 +50,10 @@ jobs:
 
       # fix for ruby https://github.com/facebook/react-native/issues/37301#issuecomment-1540484759
       - name: Fix for ruby
-        uses: |
-          cd ios
+        run: |
           bundle config --local build.ffi --with-cflags=-Wno-error=implicit-function-declaration
           bundle install
+
       - name: Install Pods
         run: bundle exec pod check || bundle exec pod install
       - name: Install xcpretty
@@ -66,6 +66,6 @@ jobs:
           -scheme AwesomeLibraryExample \
           -sdk iphonesimulator \
           -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 14' \
+          -destination 'platform=iOS Simulator,name=iPhone 11' \
           build \
           CODE_SIGNING_ALLOWED=NO | xcpretty"
