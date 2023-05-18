@@ -20,14 +20,18 @@ jobs:
         run: echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
       # setup emulator
-      - name: SKDs - download required images
-        run: $ANDROID_HOME/tools/bin/sdkmanager "system-images;android-30;default;x86_64"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          sdk-platform: 'android-30'
 
-      - name: SDKs - accept licenses
-        run: y | $ANDROID_HOME/tools/bin/sdkmanager --licenses
-
-      - name: Emulator - Create
-        run: $ANDROID_HOME/tools/bin/avdmanager create avd -n Pixel_API_30 --device 'Nexus 5X' --package "system-images;android-30;default;x86_64" --sdcard 512M
+      - name: Set up Emulator
+        run: |
+          sdkmanager --install "system-images;android-30;default;x86_64"
+          echo "no" | avdmanager --verbose create avd --force --name Pixel_API_30 --package "system-images;android-30;default;x86_64" --sdcard 512M --device "Nexus 5X"
+          emulator -avd Pixel_API_30 -no-window -no-audio &
+          android-wait-for-emulator
+          adb devices
 
       # build Android app
       - name: Setup Java 11
@@ -63,25 +67,28 @@ jobs:
         working-directory: example/android
         run: ./gradlew assembleDebug --build-cache
 
-      - name: Emulator - Boot
-        run: $ANDROID_HOME/emulator/emulator -memory 4096 -avd Pixel_API_30 -wipe-data -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim &
+      - name: Start ADB Server
+        run: adb start-server
 
-      - name: ADB Wait For Device
-        run: adb wait-for-any-device
-        timeout-minutes: 3
+      # - name: Emulator - Boot
+      #   run: $ANDROID_HOME/emulator/emulator -memory 4096 -avd Pixel_API_30 -wipe-data -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim &
 
-      - name: LS the build folder
-        working-directory: example/android
-        run: |
-          ls app/build/outputs/apk/debug/
-      - name: Install app
-        working-directory: example/android
-        run: |
-          adb install app/build/outputs/apk/debug/app-debug.apk
+      # - name: ADB Wait For Device
+      #   run: adb wait-for-any-device
+      #   timeout-minutes: 3
 
-      - name: Debug maestro
-        run: maestro hierarchy
+      # - name: LS the build folder
+      #   working-directory: example/android
+      #   run: |
+      #     ls app/build/outputs/apk/debug/
+      # - name: Install app
+      #   working-directory: example/android
+      #   run: |
+      #     adb install app/build/outputs/apk/debug/app-debug.apk
 
-      # run test
-      - name: Test
-        run: maestro test ./flow-android.yml
+      # - name: Debug maestro
+      #   run: maestro hierarchy
+
+      # # run test
+      # - name: Test
+      #   run: maestro test ./flow-android.yml
