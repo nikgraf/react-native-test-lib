@@ -96,7 +96,10 @@ jobs:
           xcrun simctl boot $DEVICE_UUID
           xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/AwesomeLibraryExample.app
       - name: Test
-        # run: maestro record ../../flow.yml
+        run: maestro test ../../flow.yml
+
+      - name: Debug
+        if: always()
         run: maestro hierarchy
 
       - name: Upload artifacts

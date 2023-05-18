@@ -19,20 +19,6 @@ jobs:
       - name: Add maestro to PATH
         run: echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      # setup emulator
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          sdk-platform: 'android-30'
-
-      - name: Set up Emulator
-        run: |
-          sdkmanager --install "system-images;android-30;default;x86_64"
-          echo "no" | avdmanager --verbose create avd --force --name Pixel_API_30 --package "system-images;android-30;default;x86_64" --sdcard 512M --device "Nexus 5X"
-          emulator -avd Pixel_API_30 -no-window -no-audio &
-          android-wait-for-emulator
-          adb devices
-
       # build Android app
       - name: Setup Java 11
         uses: actions/setup-java@v3
@@ -67,8 +53,14 @@ jobs:
         working-directory: example/android
         run: ./gradlew assembleDebug --build-cache
 
-      - name: Start ADB Server
-        run: adb start-server
+      - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: |
+            ls app/build/outputs/apk/debug/
+            ls app
+            echo "weee"
 
       # - name: Emulator - Boot
       #   run: $ANDROID_HOME/emulator/emulator -memory 4096 -avd Pixel_API_30 -wipe-data -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim &
@@ -81,6 +73,7 @@ jobs:
       #   working-directory: example/android
       #   run: |
       #     ls app/build/outputs/apk/debug/
+
       # - name: Install app
       #   working-directory: example/android
       #   run: |
