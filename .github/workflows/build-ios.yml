@@ -11,7 +11,18 @@ jobs:
         working-directory: example/ios
     steps:
       - uses: actions/checkout@v3
-
+      # setup maestro
+      - name: Install dependencies
+        run: |
+          brew tap facebook/fb
+          brew install facebook/fb/idb-companion
+      - name: Install maestro
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+      - name: Add maestro to PATH
+        run: echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+      - name: Use maestro
+        run: maestro -h
+      # build app
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -66,6 +77,25 @@ jobs:
           -scheme AwesomeLibraryExample \
           -sdk iphonesimulator \
           -configuration Debug \
-          -destination 'platform=iOS Simulator,name=iPhone 11' \
+          -destination 'platform=iOS Simulator,name=iPhone 14' \
           build \
           CODE_SIGNING_ALLOWED=NO | xcpretty"
+
+      # Install app to simulator
+      - name: Get XCode Version
+        run: |
+          xcodebuild -version
+      - name: Create and Run iOS Emulator
+        env:
+          DEVICE_NAME: 'myPhone'
+        run: |
+          gem install xcode-install
+          xcversion simulators --install='iOS 15.4'
+          xcrun simctl list
+          xcrun simctl create $DEVICE_NAME "iPhone 13" com.apple.CoreSimulator.SimRuntime.iOS-15-4 > device_id.txt
+          DEVICE_UUID=`cat device_id.txt`
+          echo $DEVICE_UUID
+          xcrun simctl boot $DEVICE_UUID
+          xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/AwesomeLibraryExample.app
+      - name: Test
+        run: maestro test ../flow.yml
