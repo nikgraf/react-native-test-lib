@@ -1,0 +1,6 @@
+appId: com.opaqueexample
+---
+- launchApp
+- assertVisible:
+    text: 'Result: 21'
+    enabled: true
