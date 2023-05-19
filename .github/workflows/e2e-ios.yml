@@ -44,7 +44,7 @@ jobs:
 
       - name: Build iOS App
         working-directory: example
-        run: react-native run-ios --configuration Release --simulator "iPhone 13 (15.2)"
+        run: yarn run react-native run-ios --configuration Release --simulator "iPhone 13 (15.2)"
         # yarn run react-native run-ios --mode Release
 
       - name: Sleep for 20 seconds
