@@ -41,7 +41,8 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install Maestro CLI
-        run: export MAESTRO_VERSION=1.21.3; curl -Ls "https://get.maestro.mobile.dev" | bash
+        # run: export MAESTRO_VERSION=1.21.3; curl -Ls "https://get.maestro.mobile.dev" | bash
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
 
       - name: Add Maestro to path
         run: echo "${HOME}/.maestro/bin" >> $GITHUB_PATH
@@ -59,6 +60,3 @@ jobs:
           script: |
             yarn android-release
             maestro test ../flow-android.yml
-          # script: |
-          #   "yarn run react-native run-android --variant=release"
-          #   maestro test ../flow-android.yml

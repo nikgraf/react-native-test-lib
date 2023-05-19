@@ -33,6 +33,10 @@ jobs:
         working-directory: example
         run: yarn install --frozen-lockfile
 
+      - name: Install node_modules
+        working-directory: example
+        run: yarn pods
+
       - name: Install Maestro CLI
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
