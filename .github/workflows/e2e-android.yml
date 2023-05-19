@@ -55,9 +55,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
+          working-directory: example
           script: |
-            "cd example"
-            "pwd"
             "yarn run react-native run-android --variant=release"
-            "cd .."
-            "maestro test flow-android.yml"
+            "maestro test ../flow-android.yml"
