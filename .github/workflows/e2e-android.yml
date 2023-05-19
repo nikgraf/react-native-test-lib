@@ -56,7 +56,8 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            cd example
-            yarn run react-native run-android --variant=release
-            cd ..
-            maestro test flow-android.yml
+            "cd example"
+            "pwd"
+            "yarn run react-native run-android --variant=release"
+            "cd .."
+            "maestro test flow-android.yml"
