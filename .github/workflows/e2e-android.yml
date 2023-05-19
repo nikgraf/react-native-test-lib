@@ -57,5 +57,8 @@ jobs:
           disable-animations: true
           working-directory: example
           script: |
-            "yarn run react-native run-android --variant=release"
-            "maestro test ../flow-android.yml"
+            yarn android-release
+            maestro test ../flow-android.yml
+          # script: |
+          #   "yarn run react-native run-android --variant=release"
+          #   maestro test ../flow-android.yml
