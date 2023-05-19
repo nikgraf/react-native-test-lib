@@ -1,4 +1,4 @@
-appId: com.opaqueexample
+appId: com.awesomelibraryexample
 ---
 - launchApp
 - assertVisible:

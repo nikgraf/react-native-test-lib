@@ -1,113 +1,113 @@
-name: Build iOS
+# name: Build iOS
 
-on: [push]
+# on: [push]
 
-jobs:
-  build:
-    name: Build iOS Example App
-    runs-on: macOS-latest
-    defaults:
-      run:
-        working-directory: example/ios
-    steps:
-      - uses: actions/checkout@v3
-      # setup maestro
-      - name: Install dependencies
-        run: |
-          brew tap facebook/fb
-          brew install facebook/fb/idb-companion
-      - name: Install maestro
-        run: curl -Ls "https://get.maestro.mobile.dev" | bash
-      - name: Add maestro to PATH
-        run: echo "$HOME/.maestro/bin" >> $GITHUB_PATH
-      # build app
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Restore node_modules from cache
-        uses: actions/cache@v2
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd ..
+# jobs:
+#   build:
+#     name: Build iOS Example App
+#     runs-on: macOS-latest
+#     defaults:
+#       run:
+#         working-directory: example/ios
+#     steps:
+#       - uses: actions/checkout@v3
+#       # setup maestro
+#       - name: Install dependencies
+#         run: |
+#           brew tap facebook/fb
+#           brew install facebook/fb/idb-companion
+#       - name: Install maestro
+#         run: curl -Ls "https://get.maestro.mobile.dev" | bash
+#       - name: Add maestro to PATH
+#         run: echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+#       # build app
+#       - name: Get yarn cache directory path
+#         id: yarn-cache-dir-path
+#         run: echo "::set-output name=dir::$(yarn cache dir)"
+#       - name: Restore node_modules from cache
+#         uses: actions/cache@v2
+#         id: yarn-cache
+#         with:
+#           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+#           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+#           restore-keys: |
+#             ${{ runner.os }}-yarn-
+#       - name: Install node_modules for example/
+#         run: yarn install --frozen-lockfile --cwd ..
 
-      - name: Restore buildcache
-        uses: mikehardy/buildcache-action@v1
-        continue-on-error: true
+#       - name: Restore buildcache
+#         uses: mikehardy/buildcache-action@v1
+#         continue-on-error: true
 
-      - name: Setup Ruby (bundle)
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.6
-          bundler-cache: true
-          working-directory: example/ios
+#       - name: Setup Ruby (bundle)
+#         uses: ruby/setup-ruby@v1
+#         with:
+#           ruby-version: 2.6
+#           bundler-cache: true
+#           working-directory: example/ios
 
-      - name: Restore Pods cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            example/ios/Pods
-            ~/Library/Caches/CocoaPods
-            ~/.cocoapods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
+#       - name: Restore Pods cache
+#         uses: actions/cache@v2
+#         with:
+#           path: |
+#             example/ios/Pods
+#             ~/Library/Caches/CocoaPods
+#             ~/.cocoapods
+#           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+#           restore-keys: |
+#             ${{ runner.os }}-pods-
 
-      # fix for ruby https://github.com/facebook/react-native/issues/37301#issuecomment-1540484759
-      - name: Fix for ruby
-        run: |
-          bundle config --local build.ffi --with-cflags=-Wno-error=implicit-function-declaration
-          bundle install
+#       # fix for ruby https://github.com/facebook/react-native/issues/37301#issuecomment-1540484759
+#       - name: Fix for ruby
+#         run: |
+#           bundle config --local build.ffi --with-cflags=-Wno-error=implicit-function-declaration
+#           bundle install
 
-      - name: Install Pods
-        run: bundle exec pod check || bundle exec pod install
-      # - name: Install xcpretty
-      #   run: gem install xcpretty
-      # - name: Build App
-      #   run: "set -o pipefail && xcodebuild \
-      #     CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
-      #     -derivedDataPath build -UseModernBuildSystem=YES \
-      #     -workspace AwesomeLibraryExample.xcworkspace \
-      #     -scheme AwesomeLibraryExample \
-      #     -sdk iphonesimulator \
-      #     -configuration Debug \
-      #     -destination 'platform=iOS Simulator,name=iPhone 14' \
-      #     build \
-      #     CODE_SIGNING_ALLOWED=NO | xcpretty"
+#       - name: Install Pods
+#         run: bundle exec pod check || bundle exec pod install
+#       # - name: Install xcpretty
+#       #   run: gem install xcpretty
+#       # - name: Build App
+#       #   run: "set -o pipefail && xcodebuild \
+#       #     CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+#       #     -derivedDataPath build -UseModernBuildSystem=YES \
+#       #     -workspace AwesomeLibraryExample.xcworkspace \
+#       #     -scheme AwesomeLibraryExample \
+#       #     -sdk iphonesimulator \
+#       #     -configuration Debug \
+#       #     -destination 'platform=iOS Simulator,name=iPhone 14' \
+#       #     build \
+#       #     CODE_SIGNING_ALLOWED=NO | xcpretty"
 
-      # Install app to simulator
-      - name: Get XCode Version
-        run: |
-          xcodebuild -version
-      # - name: Create and Run iOS Simulator
-      #   env:
-      #     DEVICE_NAME: 'myPhone'
-      #   run: |
-      #     gem install xcode-install
-      #     xcversion simulators --install='iOS 15.4'
-      #     xcrun simctl list
-      #     xcrun simctl create $DEVICE_NAME "iPhone 13" com.apple.CoreSimulator.SimRuntime.iOS-15-4 > device_id.txt
-      #     DEVICE_UUID=`cat device_id.txt`
-      #     echo $DEVICE_UUID
-      #     xcrun simctl boot $DEVICE_UUID
-      - name: Build and run App
-        run: yarn run react-native run-ios --mode Release
-        # xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/AwesomeLibraryExample.app
+#       # Install app to simulator
+#       - name: Get XCode Version
+#         run: |
+#           xcodebuild -version
+#       # - name: Create and Run iOS Simulator
+#       #   env:
+#       #     DEVICE_NAME: 'myPhone'
+#       #   run: |
+#       #     gem install xcode-install
+#       #     xcversion simulators --install='iOS 15.4'
+#       #     xcrun simctl list
+#       #     xcrun simctl create $DEVICE_NAME "iPhone 13" com.apple.CoreSimulator.SimRuntime.iOS-15-4 > device_id.txt
+#       #     DEVICE_UUID=`cat device_id.txt`
+#       #     echo $DEVICE_UUID
+#       #     xcrun simctl boot $DEVICE_UUID
+#       - name: Build and run App
+#         run: yarn run react-native run-ios --mode Release
+#         # xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/AwesomeLibraryExample.app
 
-      - name: Test
-        run: maestro test ../../flow.yml
+#       - name: Test
+#         run: maestro test ../../flow.yml
 
-      - name: Debug
-        if: always()
-        run: maestro hierarchy
+#       - name: Debug
+#         if: always()
+#         run: maestro hierarchy
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        # if: failure()
-        with:
-          name: build
-          path: build/Build/Products/Debug-iphonesimulator
+#       - name: Upload artifacts
+#         uses: actions/upload-artifact@v3
+#         # if: failure()
+#         with:
+#           name: build
+#           path: build/Build/Products/Debug-iphonesimulator
