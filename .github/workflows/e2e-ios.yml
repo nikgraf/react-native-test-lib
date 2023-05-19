@@ -29,13 +29,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
-      - name: Install node_modules
-        working-directory: example
-        run: yarn install --frozen-lockfile
+      # - name: Install node_modules
+      #   working-directory: example
+      #   run: yarn install --frozen-lockfile
 
       - name: Install node_modules
-        working-directory: example
-        run: yarn pods
+        run: yarn
+
+      # - name: Install Pods
+      #   run: bundle exec pod check || bundle exec pod install
+
+      # - name: Install node_modules
+      #   working-directory: example
+      #   run: yarn pods
 
       - name: Install Maestro CLI
         run: |
@@ -50,10 +56,6 @@ jobs:
         working-directory: example
         # run: yarn run react-native run-ios --configuration Release --simulator "iPhone 13 (15.2)"
         run: yarn run react-native run-ios --mode Release
-
-      - name: Sleep for 20 seconds
-        run: sleep 20s
-        shell: bash
 
       - name: Test
         run: maestro test flow.yml
