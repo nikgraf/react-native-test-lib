@@ -1,0 +1,87 @@
+# name: Build Android
+
+# on: [push]
+
+# jobs:
+#   build:
+#     name: Build Android Example App
+#     runs-on: macOS-latest
+#     steps:
+#       - uses: actions/checkout@v3
+
+#       # setup maestro
+#       - name: Install dependencies
+#         run: |
+#           brew tap facebook/fb
+#           brew install facebook/fb/idb-companion
+#       - name: Install maestro
+#         run: curl -Ls "https://get.maestro.mobile.dev" | bash
+#       - name: Add maestro to PATH
+#         run: echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+#       # build Android app
+#       - name: Setup Java 11
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: 'zulu' # See 'Supported distributions' for available options
+#           java-version: '11'
+#       - name: Get yarn cache directory path
+#         id: yarn-cache-dir-path
+#         run: echo "::set-output name=dir::$(yarn cache dir)"
+#       - name: Restore node_modules from cache
+#         uses: actions/cache@v2
+#         id: yarn-cache
+#         with:
+#           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+#           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+#           restore-keys: |
+#             ${{ runner.os }}-yarn-
+#       - name: Install node_modules
+#         run: yarn install --frozen-lockfile
+#       - name: Install node_modules for example/
+#         run: yarn install --frozen-lockfile --cwd example
+#       - name: Restore Gradle cache
+#         uses: actions/cache@v2
+#         with:
+#           path: |
+#             ~/.gradle/caches
+#             ~/.gradle/wrapper
+#           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+#           restore-keys: |
+#             ${{ runner.os }}-gradle-
+#       - name: Run Gradle Build for example/android/
+#         working-directory: example/android
+#         run: ./gradlew assembleDebug --build-cache
+
+#       - name: run tests
+#         uses: reactivecircus/android-emulator-runner@v2
+#         with:
+#           api-level: 29
+#           script: |
+#             ls app/build/outputs/apk/debug/
+#             ls app
+#             echo "weee"
+
+#       # - name: Emulator - Boot
+#       #   run: $ANDROID_HOME/emulator/emulator -memory 4096 -avd Pixel_API_30 -wipe-data -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim &
+
+#       # - name: ADB Wait For Device
+#       #   run: adb wait-for-any-device
+#       #   timeout-minutes: 3
+
+#       # - name: LS the build folder
+#       #   working-directory: example/android
+#       #   run: |
+#       #     ls app/build/outputs/apk/debug/
+
+#       # - name: Install app
+#       #   working-directory: example/android
+#       #   run: |
+#       #     adb install app/build/outputs/apk/debug/app-debug.apk
+
+#       # - name: Debug maestro
+#       #   run: maestro hierarchy
+
+#       # # run test
+#       # - name: Test
+#       #   run: maestro test ./flow-android.yml

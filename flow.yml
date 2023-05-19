@@ -1,0 +1,6 @@
+appId: org.reactjs.native.example.AwesomeLibraryExample
+---
+- launchApp
+- assertVisible:
+    text: 'Result: 21'
+    enabled: true
